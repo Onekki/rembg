@@ -4,9 +4,13 @@ on:
   push:
     tags:
       - "v*.*.*"
+
+permissions:
+  contents: write
+
 jobs:
-  deploy:
-    name: Deploy
+  release:
+    name: Release
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -35,7 +39,7 @@ jobs:
       - name: Version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-      - name: Deploy
+      - name: Upload
         uses: softprops/action-gh-release@v1
         with:
           files: |

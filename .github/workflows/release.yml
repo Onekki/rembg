@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - build: ubuntu
+            os: ubuntu-22.04
+            target: ubuntu-x86_64
+    
+    steps:
+      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          pip install pyinstaller
+          pip install -e ".[cli]"
+          pyinstaller rembg.spec
+
+      - name: Compression
+          target_file="rembg-${{ env.VERSION }}-${{ matrix.target }}"
+          7z a $target_file.zip ./dist/rembg/*
+          echo "ASSET=$target_file.zip" >> $GITHUB_ENV
+      
+      - name: Version
+        shell: bash
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Deploy
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ env.ASSET }}

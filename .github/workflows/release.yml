@@ -27,12 +27,12 @@ jobs:
           pyinstaller rembg.spec
 
       - name: Compression
+        run: |
           target_file="rembg-${{ env.VERSION }}-${{ matrix.target }}"
           7z a $target_file.zip ./dist/rembg/*
           echo "ASSET=$target_file.zip" >> $GITHUB_ENV
       
       - name: Version
-        shell: bash
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
       - name: Deploy
